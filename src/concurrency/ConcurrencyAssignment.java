@@ -109,7 +109,7 @@ public class ConcurrencyAssignment {
 				+ " was: " + (endSinglethreadTask - startSinglethreadTask) + " nanoseconds");
 		System.out.println("The single-thread was " + ((endMultithreadTask - startMultithreadTask)
 				- (endSinglethreadTask - startSinglethreadTask)) / Math.pow(10, 9) +
-				" seconds faster than " + "the multi-thread");
+				" seconds faster than " + "the synchronized multi-thread");
 	}
 
 }
