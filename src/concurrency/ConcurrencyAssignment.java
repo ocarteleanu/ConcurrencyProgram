@@ -3,14 +3,16 @@ package concurrency;
  * The ConcurrencyAssignment class is used to call the constructor of the threads that will
  * work in parallel and the constructor of the thread that will work by itself to sum up the
  * numbers in the array. It will also display messages about the sum calculated with the two 
- * methods and the time in nanoseconds that each process uses to finish the task. 
+ * methods and the time in nanoseconds that each process uses to finish the task. To add more 
+ * complexity it also calls the constructor for two threads that will used a synchronized 
+ * method and compare the sum and the times of execution
  */
 public class ConcurrencyAssignment {
 	/**
 	 * arrayOfNumbers is an array with 200 million integers from 1 to 10
 	 * arraySum is the variable that will store the sum calculated in parallel
-	 * arraySumUnsyncThree and arraySumUnsyncFour are the variable that will store
-	 *  the sum calculated in parallel in an unsynchronized way
+	 * arraySumUnsyncThree and arraySumUnsyncFour are the variable that will store 
+	 * the sum calculated in parallel in an unsynchronized way
 	 * arraySumToCompare is the variable that will store the sum calculated by a single thread
 	 */
 	protected static int[] arrayOfNumbers = new int[(int) (2*Math.pow(10, 8))];
@@ -31,12 +33,12 @@ public class ConcurrencyAssignment {
 	}
 	/**
 	 * This method is used to calculate the sum in parallel being called by the
-	 * run() method in the parallel threads, but not in a synchronized way
+	 * run() method in the parallel threads, in a unsynchronized way
 	 * @param theIndexTwo is an integer that is passed as an argument and represents the
 	 * index of the number in the array that is summed up by the parallel threads
 	 */
-	public static void alternativeAdditionTool (int theIndexTwo, int whichSum) {
-		if(whichSum == 0) {
+	public static void alternativeAdditionTool (int theIndexTwo, int whichSeg) {
+		if(whichSeg == 0) {
 			ConcurrencyAssignment.arraySumUnsyncThree += arrayOfNumbers[theIndexTwo];
 		}
 		else 
@@ -73,19 +75,63 @@ public class ConcurrencyAssignment {
 		}
 	    /**
 	     * Creating and starting the parallel threads
-	     * The first two will use a synchronized method, and the latter two, 
+	     * The first two will use a synchronized method, and the latter four, 
 	     * an unsynchronized one 
 	     */
 		ParallelSumCalculation threadOne = new ParallelSumCalculation(true);
 		ParallelSumCalculation threadTwo = new ParallelSumCalculation(false);
 		UnsynchronizedParallelSumCalculation threadThree = 
-				new UnsynchronizedParallelSumCalculation(true);
+				new UnsynchronizedParallelSumCalculation(0);
 		UnsynchronizedParallelSumCalculation threadFour = 
-				new UnsynchronizedParallelSumCalculation(false);
+				new UnsynchronizedParallelSumCalculation(1);
 		/**
 		 * all the long variables declared below are used to count the time 
 		 * in nanoseconds of the process
-		 */
+		 */				
+		startMultithreadTaskUnsync = System.nanoTime();
+		threadThree.start();
+		threadFour.start();	
+		//threadFive.start();
+		//threadSix.start();	
+		try {
+			threadThree.join();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}		
+		try {
+			threadFour.join();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		long endMultithreadTaskUnsync = System.nanoTime();
+		System.out.println("The sum of the elements in the array calculated"
+				+ " with unsynchronized multi-threading is: " + 
+				(ConcurrencyAssignment.arraySumUnsyncThree +
+						ConcurrencyAssignment.arraySumUnsyncFour));
+		System.out.println("The time of calculation with unsynchronized multi-threading"
+				+ " was: " + (endMultithreadTaskUnsync - 
+						ConcurrencyAssignment.startMultithreadTaskUnsync) 
+				+ " nanoseconds");
+	    long startSinglethreadTask = System.nanoTime();	 	   
+	    /**
+	     * Starting the single thread
+	     */
+	    singleThread.start();	  
+	    try {
+			singleThread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	    long endSinglethreadTask = System.nanoTime();
+		System.out.println("The time of calculation with single-threading"
+				+ " was: " + (endSinglethreadTask - startSinglethreadTask) + " nanoseconds");
+		System.out.println("The single-thread was " + (- (endMultithreadTaskUnsync - 
+				startMultithreadTaskUnsync)	+ (endSinglethreadTask - startSinglethreadTask))
+				 +	" nanoseconds slower than " + "the unsynchronized multi-thread");
 		long startMultithreadTask = System.nanoTime();
 		threadOne.start();
 		threadTwo.start();
@@ -104,58 +150,16 @@ public class ConcurrencyAssignment {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		long endMultithreadTask = System.nanoTime();
 		System.out.println("The sum of the elements in the array calculated"
 				+ " with synchronized multi-threading is: " + arraySum);
-		long endMultithreadTask = System.nanoTime();
 		System.out.println("The time of calculation with synchronized multi-threading"
 				+ " was: " + (endMultithreadTask - startMultithreadTask) + " nanoseconds");
-				
-		startMultithreadTaskUnsync = System.nanoTime();
-		threadThree.start();
-		threadFour.start();	
-		try {
-			threadThree.join();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}		
-		try {
-			threadFour.join();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		long endMultithreadTaskUnsync = System.nanoTime();
-	    long startSinglethreadTask = System.nanoTime();	 	   
-	    /**
-	     * Starting the single thread
-	     */
-	    singleThread.start();	  
-	    try {
-			singleThread.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	    long endSinglethreadTask = System.nanoTime();
-		System.out.println("The time of calculation with single-threading"
-				+ " was: " + (endSinglethreadTask - startSinglethreadTask) + " nanoseconds");
 		System.out.println("The single-thread was " + ((endMultithreadTask - startMultithreadTask)
 				- (endSinglethreadTask - startSinglethreadTask)) / Math.pow(10, 9) +
 				" seconds faster than " + "the synchronized multi-thread");
 
-		System.out.println("The sum of the elements in the array calculated"
-				+ " with unsynchronized multi-threading is: " + 
-				(ConcurrencyAssignment.arraySumUnsyncThree +
-						ConcurrencyAssignment.arraySumUnsyncFour));
-		System.out.println("The time of calculation with unsynchronized multi-threading"
-				+ " was: " + (endMultithreadTaskUnsync - 
-						ConcurrencyAssignment.startMultithreadTaskUnsync) 
-				+ " nanoseconds");
-		System.out.println("The single-thread was " + ((endMultithreadTaskUnsync - 
-				startMultithreadTaskUnsync)	- (endSinglethreadTask - startSinglethreadTask))
-				/ Math.pow(10, 9) +	" seconds faster than " + "the unsynchronized multi-thread");
+
 	}
 }
 

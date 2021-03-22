@@ -6,46 +6,40 @@ package concurrency;
  * or the odd integers (if the boolean has a false value)
  */
 public class UnsynchronizedParallelSumCalculation extends Thread {
-	boolean isEven;
+	int calculationSegment;
 	
-	UnsynchronizedParallelSumCalculation (boolean trueOrFalse){
-		this.isEven = trueOrFalse;
+	UnsynchronizedParallelSumCalculation (int calculationIndex){
+		this.calculationSegment = calculationIndex;
 	}
 	
 
 	@Override
 	public void run() {		
-		if(this.isEven)
-			evenNumbersSum();
-		else
-			oddNumbersSum();
+		unsynchronizedSum(calculationSegment);
 	}
 	/**
-	 * The evenNumbersSum method calculates the sum of all the even integers in the array
+	 * The unsynchronizedSum method calculates the sum of all the numbers in the array
 	 * by calling the static method alternativeAdditionTool() from the ConcurrencyAssignment class.
-	 * It takes no parameters. Also, it displays a message after the thread that it belongs to,
-	 * has started
+	 * It takes as parameter the class field calculationSegment. Also, it displays a 
+	 * message after the thread that it belongs to, has started
 	 */
-	public void evenNumbersSum() {
-		System.out.println("The even numbers unsynchronized thread has started...");
-		for(int a = 0; a < ConcurrencyAssignment.arrayOfNumbers.length; a ++) {
-			if(ConcurrencyAssignment.arrayOfNumbers[a] % 2 == 0) {
-				ConcurrencyAssignment.alternativeAdditionTool(a, 0);				
+	public void unsynchronizedSum(int computationIndex) {		
+		if(computationIndex == 0) {
+			System.out.println("The thread that calculates the "
+					+ "first half of the sum of the"
+					+ " elements in the array has started...");
+			for(int i = 0; i <= 100000000; i++) {
+				ConcurrencyAssignment.alternativeAdditionTool(i, computationIndex);
 			}
-		}		
-	}
-	/**
-     * The oddNumbersSum method calculates the sum of all the odd integers in the array
-	 * by calling the static method additionTool() from the ConcurrencyAssignment class.
-	 * It takes no parameters. Also, it displays a message after the thread that it belongs to,
-	 * has started
- */
-	public void oddNumbersSum() {
-		System.out.println("The odd numbers unsynchronized thread has started...");
-		for(int a = 0; a < ConcurrencyAssignment.arrayOfNumbers.length; a ++) {
-			if(ConcurrencyAssignment.arrayOfNumbers[a] % 2 != 0) {
-				ConcurrencyAssignment.alternativeAdditionTool(a, 1);					
+		}
+		else
+		{
+			System.out.println("The thread that calculates the second "
+					+ "half of the sum of the"
+					+ " elements in the array has started...");
+			for(int i = 100000001; i < 200000000; i++) {
+				ConcurrencyAssignment.alternativeAdditionTool(i, computationIndex);
 			}
-		}	
+		}
 	}
 }
